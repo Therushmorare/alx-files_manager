@@ -1,26 +1,23 @@
-import redisClient from '../utils/redis';
-import dbClient from '../utils/db';
+// Assuming you have utils to check Redis and DB
+const { checkRedis, checkDB } = require('../utils');
 
-class AppController {
-  static getStatus(request, response) {
-    try {
-      const redis = redisClient.isAlive();
-      const db = dbClient.isAlive();
-      response.status(200).send({ redis, db });
-    } catch (error) {
-      console.log(error);
+const AppController = {
+  getStatus: (req, res) => {
+    const redisAlive = checkRedis();
+    const dbAlive = checkDB();
+    if (redisAlive && dbAlive) {
+      res.status(200).json({ redis: true, db: true });
+    } else {
+      res.status(500).json({ error: 'Service unavailable' });
     }
+  },
+  getStats: (req, res) => {
+    // Assuming you have a users and files collection
+    const usersCount = /* count users */;
+    const filesCount = /* count files */;
+    res.status(200).json({ users: usersCount, files: filesCount });
   }
+};
 
-  static async getStats(request, response) {
-    try {
-      const users = await dbClient.nbUsers();
-      const files = await dbClient.nbFiles();
-      response.status(200).send({ users, files });
-    } catch (error) {
-      console.log(error);
-    }
-  }
-}
+module.exports = AppController;
 
-export default AppController;
